@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows.Forms;
 
 namespace ExploradorDeArchivos
@@ -28,6 +29,8 @@ namespace ExploradorDeArchivos
         private readonly Dictionary<string, int> _iconIndexMap = new(StringComparer.OrdinalIgnoreCase);
         private const string FolderIconKey = "__folder__";
         private readonly Dictionary<string, (int folders, int files)> _directoryContentCache = new(StringComparer.OrdinalIgnoreCase);
+        private const int MaxIndexedDirectories = 10;
+        private const int MaxFilesPerDirectoryInIndex = 6;
 
         public Form1()
         {
@@ -295,6 +298,182 @@ namespace ExploradorDeArchivos
             }
         }
 
+        private void ToolStripButtonIndexSearch_Click(object? sender, EventArgs e)
+        {
+            BeginIndexSearch(toolStripTextBoxIndex.Text);
+        }
+
+        private void ToolStripTextBoxIndex_KeyDown(object? sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter)
+            {
+                return;
+            }
+
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+            BeginIndexSearch(toolStripTextBoxIndex.Text);
+        }
+
+        private void BeginIndexSearch(string query)
+        {
+            var targetPath = ResolveIndexTarget(query);
+            if (string.IsNullOrEmpty(targetPath))
+            {
+                richTextBoxIndexResults.Text = "No se encontró una carpeta válida para indexar.";
+                return;
+            }
+
+            richTextBoxIndexResults.Text = BuildIndexSummary(targetPath);
+            UpdateStatus($"Índice generado para \"{Path.GetFileName(targetPath) ?? targetPath}\"");
+        }
+
+        private string ResolveIndexTarget(string query)
+        {
+            var basePath = string.IsNullOrEmpty(_currentPath)
+                ? Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)
+                : _currentPath;
+
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                var normalized = query.Trim();
+                if (Directory.Exists(normalized))
+                {
+                    return normalized;
+                }
+
+                var relative = Path.Combine(basePath, normalized);
+                if (Directory.Exists(relative))
+                {
+                    return relative;
+                }
+
+                try
+                {
+                    var match = Directory.EnumerateDirectories(basePath, $"*{normalized}*", SearchOption.TopDirectoryOnly)
+                        .OrderBy(d => d)
+                        .FirstOrDefault();
+                    if (!string.IsNullOrEmpty(match))
+                    {
+                        return match;
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+                }
+                catch (IOException)
+                {
+                }
+            }
+
+            return basePath;
+        }
+
+        private string BuildIndexSummary(string path)
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine("Carpeta");
+            builder.AppendLine($"-> {Path.GetFileName(path) ?? path}");
+            builder.AppendLine("Archivos");
+
+            var rootFiles = EnumerateFilesSafe(path, MaxFilesPerDirectoryInIndex + 1);
+            if (rootFiles.Length == 0)
+            {
+                builder.AppendLine("   (sin archivos directos visibles)");
+            }
+            else
+            {
+                var displayCount = Math.Min(rootFiles.Length, MaxFilesPerDirectoryInIndex);
+                for (var i = 0; i < displayCount; i++)
+                {
+                    builder.AppendLine($"   * {Path.GetFileName(rootFiles[i])}");
+                }
+
+                if (rootFiles.Length > MaxFilesPerDirectoryInIndex)
+                {
+                    builder.AppendLine("   * ...");
+                }
+            }
+
+            var subdirectories = EnumerateDirectoriesSafe(path);
+            if (subdirectories.Length == 0)
+            {
+                builder.AppendLine("-> Subcarpetas: ninguna");
+                return builder.ToString().TrimEnd();
+            }
+
+            builder.AppendLine("-> Subcarpetas");
+            foreach (var directory in subdirectories)
+            {
+                AppendDirectoryIndex(builder, directory);
+            }
+
+            return builder.ToString().TrimEnd();
+        }
+
+        private void AppendDirectoryIndex(StringBuilder builder, string directory)
+        {
+            var name = Path.GetFileName(directory) ?? directory;
+            var counts = GetDirectoryContentCounts(directory);
+            builder.Append("   -> ");
+            builder.Append(name);
+            if (counts.HasValue)
+            {
+                builder.AppendLine($" ({counts.Value.folders} carpetas, {counts.Value.files} archivos)");
+            }
+            else
+            {
+                builder.AppendLine(" (contenido inaccesible)");
+            }
+
+            var files = EnumerateFilesSafe(directory, MaxFilesPerDirectoryInIndex + 1);
+            if (files.Length > 0)
+            {
+                var displayCount = Math.Min(files.Length, MaxFilesPerDirectoryInIndex);
+                for (var i = 0; i < displayCount; i++)
+                {
+                    builder.AppendLine($"      * {Path.GetFileName(files[i])}");
+                }
+
+                if (files.Length > MaxFilesPerDirectoryInIndex)
+                {
+                    builder.AppendLine("      * ...");
+                }
+            }
+        }
+
+        private string[] EnumerateDirectoriesSafe(string path)
+        {
+            try
+            {
+                return Directory.GetDirectories(path).OrderBy(d => d).Take(MaxIndexedDirectories).ToArray();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Array.Empty<string>();
+            }
+            catch (IOException)
+            {
+                return Array.Empty<string>();
+            }
+        }
+
+        private string[] EnumerateFilesSafe(string path, int limit)
+        {
+            try
+            {
+                return Directory.GetFiles(path).OrderBy(f => f).Take(limit).ToArray();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Array.Empty<string>();
+            }
+            catch (IOException)
+            {
+                return Array.Empty<string>();
+            }
+        }
+
         private void NavigateTo(string path, bool addToHistory = true)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -329,6 +508,7 @@ namespace ExploradorDeArchivos
         private void PopulateListView(string path)
         {
             _directoryContentCache.Clear();
+            richTextBoxIndexResults.Clear();
             listViewFiles.Items.Clear();
 
             try

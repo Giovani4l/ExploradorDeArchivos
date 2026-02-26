@@ -15,6 +15,10 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemViewList;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemViewDetails;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemViewTile;
+
+        private System.Windows.Forms.ToolStripLabel toolStripLabelIndexSearch;
+        private System.Windows.Forms.ToolStripTextBox toolStripTextBoxIndex;
+        private System.Windows.Forms.ToolStripButton toolStripButtonIndexSearch;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
         private System.Windows.Forms.ToolStripComboBox toolStripComboBoxAddress;
         private System.Windows.Forms.SplitContainer splitContainerMain;
@@ -26,6 +30,9 @@
         private System.Windows.Forms.ColumnHeader columnHeaderModified;
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelRight;
+        private System.Windows.Forms.GroupBox groupBoxIndexResults;
+        private System.Windows.Forms.RichTextBox richTextBoxIndexResults;
 
         protected override void Dispose(bool disposing)
         {
@@ -48,33 +55,41 @@
             toolStripSeparator = new ToolStripSeparator();
             toolStripButtonRefresh = new ToolStripButton();
             toolStripComboBoxAddress = new ToolStripComboBox();
-            splitContainerMain = new SplitContainer();
-            treeViewDirectories = new TreeView();
-            listViewFiles = new ListView();
-            columnHeaderName = new ColumnHeader();
-            columnHeaderType = new ColumnHeader();
-            columnHeaderSize = new ColumnHeader();
-            columnHeaderModified = new ColumnHeader();
-            statusStrip = new StatusStrip();
-            toolStripStatusLabel = new ToolStripStatusLabel();
+            toolStripLabelIndexSearch = new ToolStripLabel();
+            toolStripTextBoxIndex = new ToolStripTextBox();
+            toolStripButtonIndexSearch = new ToolStripButton();
             toolStripDropDownButtonView = new ToolStripDropDownButton();
             toolStripMenuItemViewLargeIcons = new ToolStripMenuItem();
             toolStripMenuItemViewSmallIcons = new ToolStripMenuItem();
             toolStripMenuItemViewList = new ToolStripMenuItem();
             toolStripMenuItemViewDetails = new ToolStripMenuItem();
             toolStripMenuItemViewTile = new ToolStripMenuItem();
+            splitContainerMain = new SplitContainer();
+            treeViewDirectories = new TreeView();
+            tableLayoutPanelRight = new TableLayoutPanel();
+            listViewFiles = new ListView();
+            columnHeaderName = new ColumnHeader();
+            columnHeaderType = new ColumnHeader();
+            columnHeaderSize = new ColumnHeader();
+            columnHeaderModified = new ColumnHeader();
+            groupBoxIndexResults = new GroupBox();
+            richTextBoxIndexResults = new RichTextBox();
+            statusStrip = new StatusStrip();
+            toolStripStatusLabel = new ToolStripStatusLabel();
             toolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainerMain).BeginInit();
             splitContainerMain.Panel1.SuspendLayout();
             splitContainerMain.Panel2.SuspendLayout();
             splitContainerMain.SuspendLayout();
+            tableLayoutPanelRight.SuspendLayout();
+            groupBoxIndexResults.SuspendLayout();
             statusStrip.SuspendLayout();
             SuspendLayout();
             // 
             // toolStrip
             // 
             toolStrip.ImageScalingSize = new Size(20, 20);
-            toolStrip.Items.AddRange(new ToolStripItem[] { toolStripButtonBack, toolStripButtonForward, toolStripButtonUp, toolStripButtonNewFolder, toolStripSeparator, toolStripButtonRefresh, toolStripComboBoxAddress, toolStripDropDownButtonView });
+            toolStrip.Items.AddRange(new ToolStripItem[] { toolStripButtonBack, toolStripButtonForward, toolStripButtonUp, toolStripButtonNewFolder, toolStripSeparator, toolStripButtonRefresh, toolStripComboBoxAddress, toolStripLabelIndexSearch, toolStripTextBoxIndex, toolStripButtonIndexSearch, toolStripDropDownButtonView });
             toolStrip.Location = new Point(0, 0);
             toolStrip.Name = "toolStrip";
             toolStrip.Padding = new Padding(7, 0, 1, 0);
@@ -139,23 +154,37 @@
             toolStripComboBoxAddress.SelectedIndexChanged += ToolStripComboBoxAddress_SelectedIndexChanged;
             toolStripComboBoxAddress.KeyDown += ToolStripComboBoxAddress_KeyDown;
             // 
+            // toolStripLabelIndexSearch
+            // 
+            toolStripLabelIndexSearch.Name = "toolStripLabelIndexSearch";
+            toolStripLabelIndexSearch.Size = new Size(49, 25);
+            toolStripLabelIndexSearch.Text = "Índice";
+            // 
+            // toolStripTextBoxIndex
+            // 
+            toolStripTextBoxIndex.Name = "toolStripTextBoxIndex";
+            toolStripTextBoxIndex.Size = new Size(140, 28);
+            toolStripTextBoxIndex.KeyDown += ToolStripTextBoxIndex_KeyDown;
+            // 
+            // toolStripButtonIndexSearch
+            // 
+            toolStripButtonIndexSearch.Name = "toolStripButtonIndexSearch";
+            toolStripButtonIndexSearch.Size = new Size(56, 25);
+            toolStripButtonIndexSearch.Text = "Buscar";
+            toolStripButtonIndexSearch.Click += ToolStripButtonIndexSearch_Click;
+            // 
             // toolStripDropDownButtonView
             // 
             toolStripDropDownButtonView.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            toolStripDropDownButtonView.DropDownItems.AddRange(new ToolStripItem[] {
-            toolStripMenuItemViewLargeIcons,
-            toolStripMenuItemViewSmallIcons,
-            toolStripMenuItemViewList,
-            toolStripMenuItemViewDetails,
-            toolStripMenuItemViewTile});
+            toolStripDropDownButtonView.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItemViewLargeIcons, toolStripMenuItemViewSmallIcons, toolStripMenuItemViewList, toolStripMenuItemViewDetails, toolStripMenuItemViewTile });
             toolStripDropDownButtonView.Name = "toolStripDropDownButtonView";
-            toolStripDropDownButtonView.Size = new Size(58, 25);
+            toolStripDropDownButtonView.Size = new Size(55, 25);
             toolStripDropDownButtonView.Text = "Vista";
             // 
             // toolStripMenuItemViewLargeIcons
             // 
             toolStripMenuItemViewLargeIcons.Name = "toolStripMenuItemViewLargeIcons";
-            toolStripMenuItemViewLargeIcons.Size = new Size(224, 26);
+            toolStripMenuItemViewLargeIcons.Size = new Size(215, 26);
             toolStripMenuItemViewLargeIcons.Tag = "LargeIcon";
             toolStripMenuItemViewLargeIcons.Text = "Iconos grandes";
             toolStripMenuItemViewLargeIcons.Click += ToolStripMenuItemView_Click;
@@ -163,7 +192,7 @@
             // toolStripMenuItemViewSmallIcons
             // 
             toolStripMenuItemViewSmallIcons.Name = "toolStripMenuItemViewSmallIcons";
-            toolStripMenuItemViewSmallIcons.Size = new Size(224, 26);
+            toolStripMenuItemViewSmallIcons.Size = new Size(215, 26);
             toolStripMenuItemViewSmallIcons.Tag = "SmallIcon";
             toolStripMenuItemViewSmallIcons.Text = "Iconos pequeños";
             toolStripMenuItemViewSmallIcons.Click += ToolStripMenuItemView_Click;
@@ -171,7 +200,7 @@
             // toolStripMenuItemViewList
             // 
             toolStripMenuItemViewList.Name = "toolStripMenuItemViewList";
-            toolStripMenuItemViewList.Size = new Size(224, 26);
+            toolStripMenuItemViewList.Size = new Size(215, 26);
             toolStripMenuItemViewList.Tag = "List";
             toolStripMenuItemViewList.Text = "Lista";
             toolStripMenuItemViewList.Click += ToolStripMenuItemView_Click;
@@ -179,7 +208,7 @@
             // toolStripMenuItemViewDetails
             // 
             toolStripMenuItemViewDetails.Name = "toolStripMenuItemViewDetails";
-            toolStripMenuItemViewDetails.Size = new Size(224, 26);
+            toolStripMenuItemViewDetails.Size = new Size(215, 26);
             toolStripMenuItemViewDetails.Tag = "Details";
             toolStripMenuItemViewDetails.Text = "Detalles";
             toolStripMenuItemViewDetails.Click += ToolStripMenuItemView_Click;
@@ -187,7 +216,7 @@
             // toolStripMenuItemViewTile
             // 
             toolStripMenuItemViewTile.Name = "toolStripMenuItemViewTile";
-            toolStripMenuItemViewTile.Size = new Size(224, 26);
+            toolStripMenuItemViewTile.Size = new Size(215, 26);
             toolStripMenuItemViewTile.Tag = "Tile";
             toolStripMenuItemViewTile.Text = "Iconos en mosaico";
             toolStripMenuItemViewTile.Click += ToolStripMenuItemView_Click;
@@ -205,7 +234,7 @@
             // 
             // splitContainerMain.Panel2
             // 
-            splitContainerMain.Panel2.Controls.Add(listViewFiles);
+            splitContainerMain.Panel2.Controls.Add(tableLayoutPanelRight);
             splitContainerMain.Panel2.Padding = new Padding(6, 7, 6, 7);
             splitContainerMain.Size = new Size(1125, 683);
             splitContainerMain.SplitterDistance = 365;
@@ -225,23 +254,39 @@
             treeViewDirectories.AfterSelect += treeViewDirectories_AfterSelect;
             treeViewDirectories.NodeMouseClick += TreeViewDirectories_NodeMouseClick;
             // 
+            // tableLayoutPanelRight
+            // 
+            tableLayoutPanelRight.ColumnCount = 1;
+            tableLayoutPanelRight.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanelRight.Controls.Add(listViewFiles, 0, 0);
+            tableLayoutPanelRight.Controls.Add(groupBoxIndexResults, 0, 1);
+            tableLayoutPanelRight.Dock = DockStyle.Fill;
+            tableLayoutPanelRight.Location = new Point(6, 7);
+            tableLayoutPanelRight.Margin = new Padding(0);
+            tableLayoutPanelRight.Name = "tableLayoutPanelRight";
+            tableLayoutPanelRight.RowCount = 2;
+            tableLayoutPanelRight.RowStyles.Add(new RowStyle(SizeType.Percent, 70F));
+            tableLayoutPanelRight.RowStyles.Add(new RowStyle(SizeType.Percent, 30F));
+            tableLayoutPanelRight.Size = new Size(743, 669);
+            tableLayoutPanelRight.TabIndex = 1;
+            // 
             // listViewFiles
             // 
             listViewFiles.Columns.AddRange(new ColumnHeader[] { columnHeaderName, columnHeaderType, columnHeaderSize, columnHeaderModified });
             listViewFiles.Dock = DockStyle.Fill;
             listViewFiles.FullRowSelect = true;
             listViewFiles.GridLines = true;
-            listViewFiles.Location = new Point(6, 7);
-            listViewFiles.Margin = new Padding(3, 4, 3, 4);
+            listViewFiles.Location = new Point(0, 0);
+            listViewFiles.Margin = new Padding(0);
             listViewFiles.MultiSelect = false;
             listViewFiles.Name = "listViewFiles";
-            listViewFiles.Size = new Size(743, 669);
+            listViewFiles.ShowItemToolTips = true;
+            listViewFiles.Size = new Size(743, 468);
             listViewFiles.TabIndex = 0;
             listViewFiles.UseCompatibleStateImageBehavior = false;
             listViewFiles.View = View.Details;
-            listViewFiles.DoubleClick += ListViewFiles_DoubleClick;
-            listViewFiles.ShowItemToolTips = true;
             listViewFiles.ItemMouseHover += ListViewFiles_ItemMouseHover;
+            listViewFiles.DoubleClick += ListViewFiles_DoubleClick;
             // 
             // columnHeaderName
             // 
@@ -262,6 +307,31 @@
             // 
             columnHeaderModified.Text = "Modificado";
             columnHeaderModified.Width = 140;
+            // 
+            // groupBoxIndexResults
+            // 
+            groupBoxIndexResults.Controls.Add(richTextBoxIndexResults);
+            groupBoxIndexResults.Dock = DockStyle.Fill;
+            groupBoxIndexResults.Location = new Point(3, 472);
+            groupBoxIndexResults.Margin = new Padding(3, 4, 3, 4);
+            groupBoxIndexResults.Name = "groupBoxIndexResults";
+            groupBoxIndexResults.Padding = new Padding(6, 7, 6, 7);
+            groupBoxIndexResults.Size = new Size(737, 193);
+            groupBoxIndexResults.TabIndex = 1;
+            groupBoxIndexResults.TabStop = false;
+            groupBoxIndexResults.Text = "Índice";
+            // 
+            // richTextBoxIndexResults
+            // 
+            richTextBoxIndexResults.BorderStyle = BorderStyle.None;
+            richTextBoxIndexResults.Dock = DockStyle.Fill;
+            richTextBoxIndexResults.Location = new Point(6, 27);
+            richTextBoxIndexResults.Name = "richTextBoxIndexResults";
+            richTextBoxIndexResults.ReadOnly = true;
+            richTextBoxIndexResults.ScrollBars = RichTextBoxScrollBars.Vertical;
+            richTextBoxIndexResults.Size = new Size(725, 159);
+            richTextBoxIndexResults.TabIndex = 0;
+            richTextBoxIndexResults.Text = "";
             // 
             // statusStrip
             // 
@@ -298,6 +368,8 @@
             splitContainerMain.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainerMain).EndInit();
             splitContainerMain.ResumeLayout(false);
+            tableLayoutPanelRight.ResumeLayout(false);
+            groupBoxIndexResults.ResumeLayout(false);
             statusStrip.ResumeLayout(false);
             statusStrip.PerformLayout();
             ResumeLayout(false);
